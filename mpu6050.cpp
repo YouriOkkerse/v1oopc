@@ -135,6 +135,48 @@ void mpu6050::calibrate_accel()
     accel_offset_z = (temp_accel_z / count);
 }
 
+void mpu6050::load_segment(int x, int y, hwlib::glcd_oled & screen)
+{
+    screen.write(hwlib::location(x, y), hwlib::black);
+    screen.write(hwlib::location(x + 1, y), hwlib::black);
+    screen.write(hwlib::location(x, y + 1), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 1), hwlib::black);
+    screen.write(hwlib::location(x, y + 2), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 2), hwlib::black);
+    screen.write(hwlib::location(x, y + 3), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 3), hwlib::black);
+    screen.write(hwlib::location(x, y + 4), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 4), hwlib::black);
+    screen.write(hwlib::location(x, y + 5), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 5), hwlib::black);
+    screen.write(hwlib::location(x, y + 6), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 6), hwlib::black);
+    screen.write(hwlib::location(x, y + 7), hwlib::black);
+    screen.write(hwlib::location(x + 1, y + 7), hwlib::black);
+}
+
+void mpu6050::calibrate_accel_loading(hwlib::glcd_oled & screen)
+{
+    int count = 0;
+    int32_t temp_accel_x = 0;
+    int32_t temp_accel_y = 0;
+    int32_t temp_accel_z = 0;
+    load_segment(11, 28, screen);
+    load_segment(113, 28, screen);
+    for(int i = 0; i < 50; i++)
+    {
+        count++;
+        temp_accel_x += get_accel_x();
+        temp_accel_y += get_accel_y();
+        temp_accel_z += get_accel_y();
+        load_segment((13 + (i*2)), 28, screen);
+        hwlib::wait_ms(100);
+    }
+    accel_offset_x = (temp_accel_x / count);
+    accel_offset_y = (temp_accel_y / count);
+    accel_offset_z = (temp_accel_z / count);
+}
+
 void mpu6050::calibrate_gyro()
 {
     int count = 0;

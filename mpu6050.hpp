@@ -159,6 +159,8 @@ public:
     mpu6050(hwlib::i2c_bus_bit_banged_scl_sda bus):bus(bus){}
     void start();
     void calibrate_accel();
+    void load_segment(int x, int y, hwlib::glcd_oled & screen);
+    void calibrate_accel_loading(hwlib::glcd_oled & screen);
     void calibrate_gyro();
     int8_t read_8_bit(const reg & r);
     int16_t read_16_bit(const reg & h, const reg & l);

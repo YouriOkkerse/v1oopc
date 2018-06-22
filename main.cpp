@@ -3,9 +3,7 @@
 
 const int screen_width = 128;
 const int screen_height = 64;
-bool game_over;
-//bool moving;
-int head_x, head_y, prev_head_x = -3, prev_head_y = -3, dot_x, dot_y, score, tick;
+int head_x, head_y, prev_head_x = -3, prev_head_y = -3, dot_x, dot_y, score;
 int tail_x[100], tail_y[100];
 int tail_length;
 
@@ -138,7 +136,6 @@ void snake_draw(int x, int y, auto & screen)
             }
         }
     }
-//    screen.clear();
 }
 
 void snake_remove(int s_x, int s_y, auto & screen)
@@ -153,7 +150,6 @@ void snake_remove(int s_x, int s_y, auto & screen)
             }
         }
     }
-//    screen.clear();
 }
 
 void dot_draw(auto & screen)
@@ -168,7 +164,6 @@ void dot_draw(auto & screen)
             }
         }
     }
-//    screen.clear();
 }
 
 void snake_move(int x_state, int y_state, int x_value, int y_value)
@@ -176,19 +171,15 @@ void snake_move(int x_state, int y_state, int x_value, int y_value)
     if(x_state == -1 && dir != RIGHT && x_value > y_value)
     {
         dir = LEFT;
-//        moving = true;
     }else if(x_state == 1 && dir != LEFT && x_value > y_value)
     {
         dir = RIGHT;
-//        moving = true;
     }else if(y_state == -1 && dir != DOWN && y_value > x_value)
     {
         dir = UP;
-//        moving = true;
     }else if(y_state == 1 && dir != UP && y_value > x_value)
     {
         dir = DOWN;
-//        moving = true;
     }
 }
 
@@ -197,8 +188,6 @@ void snake_setup(auto & screen)
     screen.clear();
     border_draw(screen_width, screen_height, screen);
     tail_length = 1;
-    game_over = false;
-//    moving = false;
     dir = STOP;
     head_x = screen_width / 2;
     head_y = screen_height / 2;
@@ -242,10 +231,12 @@ void snake_logic(auto & screen)
         default:
             break;
     }
+    /* Use this if you want to restart when going out of bounds */
 //    if(head_x > (128 - 4) || head_x < 0 || head_y > (64 - 4) || head_y < 0)
 //    {
 //        snake_setup(screen);
 //    }
+    /* Use this if you want your snake to continue from the oposite wall when colliding into a wall */
     if(head_x > (128 - 4))
     {
         head_x = 2;
@@ -259,16 +250,17 @@ void snake_logic(auto & screen)
     {
         head_y = (64 - 4);
     }
-    for(int i = 1; i < tail_length; i++)
-    {
-        if((head_x == tail_x[i] + 1 && head_y == tail_y[i] + 1) || (head_x == tail_x[i] - 1 && head_y == tail_y[i] + 1) || 
-        (head_x == tail_x[i] + 1 && head_y == tail_y[i] - 1) || (head_x == tail_x[i] - 1 && head_y == tail_y[i] - 1) ||
-        (head_x == tail_x[i] && head_y == tail_y[i] + 1) || (head_x == tail_x[i] - 1 && head_y == tail_y[i]) ||
-        (head_x == tail_x[i] && head_y == tail_y[i] - 1) || (head_x == tail_x[i] + 1 && head_y == tail_y[i]))
-        {
-            snake_setup(screen);
-        }
-    }
+    /*Use this if you want to reset the game when the snake collides with it's tail (Broken values) */
+//    for(int i = 1; i < tail_length; i++)
+//    {
+//        if((head_x == tail_x[i] + 1 && head_y == tail_y[i] + 1) || (head_x == tail_x[i] - 1 && head_y == tail_y[i] + 1) || 
+//        (head_x == tail_x[i] + 1 && head_y == tail_y[i] - 1) || (head_x == tail_x[i] - 1 && head_y == tail_y[i] - 1) ||
+//        (head_x == tail_x[i] && head_y == tail_y[i] + 1) || (head_x == tail_x[i] - 1 && head_y == tail_y[i]) ||
+//        (head_x == tail_x[i] && head_y == tail_y[i] - 1) || (head_x == tail_x[i] + 1 && head_y == tail_y[i]))
+//        {
+//            snake_setup(screen);
+//        }
+//    }
     if((head_x == dot_x + 1 && head_y == dot_y + 1) || (head_x == dot_x - 1 && head_y == dot_y + 1) || 
         (head_x == dot_x + 1 && head_y == dot_y - 1) || (head_x == dot_x - 1 && head_y == dot_y - 1) ||
         (head_x == dot_x && head_y == dot_y + 1) || (head_x == dot_x - 1 && head_y == dot_y) ||
@@ -316,29 +308,22 @@ int main(void)
     
     mpu_6050.start();
     hwlib::cout << "Starting accelerator calibration, do not move the device!\n";
-    mpu_6050.calibrate_accel();
+    mpu_6050.calibrate_accel_loading(oled);
     hwlib::cout << "Accelerator calibration complete!\n";
     snake_setup(oled);
-    tick = 0;
     for(;;)
     {
-        tick++;
         int x_axis_state = mpu_6050.get_accel_x_state(2);
         int y_axis_state = mpu_6050.get_accel_y_state(2);
         int x_accel_value = mpu_6050.get_accel_x_positive();
         int y_accel_value = mpu_6050.get_accel_y_positive();
-//        hwlib::cout << "x: " << x_accel_value << " y: " << y_accel_value << " tick: " << tick <<"\n";
-        hwlib::cout << "dx: " << dot_x << " dy: " << dot_y << "\n";
         snake_draw(head_x, head_y, oled);
         dot_draw(oled);
-//        if(moving)
-//        {
-            snake_remove(prev_head_x, prev_head_y, oled);
-//        }
+        snake_remove(prev_head_x, prev_head_y, oled);
         prev_head_x = tail_x[tail_length];
         prev_head_y = tail_y[tail_length];
         snake_logic(oled);
         snake_move(x_axis_state, y_axis_state, x_accel_value, y_accel_value);
-//        hwlib::wait_ms(500);
+        hwlib::wait_ms(10);
     }
 }

@@ -6,48 +6,48 @@
 class snake
 {
 private:
-    int x_pos1 = 64, x_pos2, x_pos3, x_pos4, x_pos5, x_pos6, x_pos7, x_pos8;
-    int y_pos1 = 32, y_pos2, y_pos3, y_pos4, y_pos5, y_pos6, y_pos7, y_pos8;
-    
+    int head_x, head_y, prev_head_x = -3, prev_head_y = -3, dot_x, dot_y, score;
+    int tail_x[100], tail_y[100];
+    int tail_length;
+    hwlib::glcd_oled & screen;
+    enum eDirection {STOP = 0, LEFT, RIGHT, UP, DOWN};
+    eDirection dir;
+    const int screen_width = 128;
+    const int screen_height = 64;
 public:
-    snake(int x_pos1, int y_pos1):
-    x_pos1(x_pos1),
-    y_pos1(y_pos1)
+//    snake(int head_x, int head_y, hwlib::window & screen):
+//    head_x(head_x),
+//    head_y(head_y),
+//    screen(screen)
+//    {}
+//    int dot_rand(int max);
+//    void fix_corner(hwlib::window & screen);
+//    void draw_segment(int x_value, int y_value, hwlib::window & screen);
+//    void remove_segment(int x_value, int y_value, hwlib::window & screen);
+//    void border_draw(int s_width, int s_height, hwlib::window & screen);
+//    void snake_draw(int x, int y, hwlib::window & screen);
+//    void snake_remove(int s_x, int s_y, hwlib::window & screen);
+//    void dot_draw(hwlib::window & screen);
+//    void snake_move(int x_state, int y_state, int x_value, int y_value);
+//    void snake_setup(hwlib::window & screen);
+//    void snake_logic(hwlib::window & screen);
+    
+    snake(int head_x, int head_y, hwlib::glcd_oled & screen):
+    head_x(head_x),
+    head_y(head_y),
+    screen(screen)
     {}
-    directions(int x_direction, int y_direction)
-    {
-        x_pos1 += x_pos1 + x_direction;
-        y_pos1 += y_pos1 + y_direction;
-    }
-    update()
-    {
-        x_pos8 = x_pos7;
-        x_pos7 = x_pos6;
-        x_pos6 = x_pos5;
-        x_pos5 = x_pos4;
-        x_pos4 = x_pos3;
-        x_pos3 = x_pos2;
-        x_pos2 = x_pos1;
-        
-        y_pos8 = y_pos7;
-        y_pos7 = y_pos6;
-        y_pos6 = y_pos5;
-        y_pos5 = y_pos4;
-        y_pos4 = y_pos3;
-        y_pos3 = y_pos2;
-        y_pos2 = y_pos1;
-    }
-    draw(auto & screen) 
-    {
-        screen.write(hwlib::location(x_pos1, y_pos1), hwlib::black);
-        screen.write(hwlib::location(x_pos2, y_pos2), hwlib::black);
-        screen.write(hwlib::location(x_pos3, y_pos3), hwlib::black);
-        screen.write(hwlib::location(x_pos4, y_pos4), hwlib::black);
-        screen.write(hwlib::location(x_pos5, y_pos5), hwlib::black);
-        screen.write(hwlib::location(x_pos6, y_pos6), hwlib::black);
-        screen.write(hwlib::location(x_pos7, y_pos7), hwlib::black);
-        screen.write(hwlib::location(x_pos8, y_pos8), hwlib::black);
-    }
-}
+    int dot_rand(int max);
+    void fix_corner(hwlib::glcd_oled & screen);
+    void draw_segment(int x_value, int y_value, hwlib::glcd_oled & screen);
+    void remove_segment(int x_value, int y_value, hwlib::glcd_oled & screen);
+    void border_draw(int s_width, int s_height, hwlib::glcd_oled & screen);
+    void snake_draw(int x, int y, hwlib::glcd_oled & screen);
+    void snake_remove(int s_x, int s_y, hwlib::glcd_oled & screen);
+    void dot_draw(hwlib::glcd_oled & screen);
+    void snake_move(int x_state, int y_state, int x_value, int y_value);
+    void snake_setup(hwlib::glcd_oled & screen);
+    void snake_logic(int & x, int & y, int (&tail_x)[100], int (&tail_y)[100], hwlib::glcd_oled & screen);
+};
 
 #endif // SNAKE_HPP
