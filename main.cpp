@@ -33,8 +33,7 @@ int dot_rand(int max)
 
 int dot_rand_v2(int max)
 {
-    int cap = max / 3;
-    int r = (unsigned)3 * rand() % cap;
+    int r = (unsigned)3 * rand() % max;
     if(r > 6)
     {
         return r - 3;

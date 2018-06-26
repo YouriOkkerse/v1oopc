@@ -4,6 +4,14 @@
 #include "hwlib.hpp"
 using byte_array = byte[8];
 
+/// @file
+
+/// \brief
+/// MPU 6050 Library
+/// \details
+/// This library gives the user a set of functions to read the output from the mpu6050.
+/// There is a set of functions to get raw data from the chip.
+/// There are also a set of functions that return values reaching from -1, 0 1.
 class mpu6050
 {
 private:
@@ -29,6 +37,10 @@ private:
     const uint8_t i2c_adress  = 0x68;
     
 public:
+/// \brief
+/// MPU 6050 registers
+/// \details
+/// This enum class contains all the different registers for the mup 6050 sensor.
     enum class reg
     {
         //Gyroscope and accelerometer tests
@@ -156,23 +168,123 @@ public:
         //Identity
         who_am_i   = 0x75
     };
+    
+    /// \brief
+    /// MPU 6050 constructor
+    /// \details
+    /// Using hwlib::i2c_bus_bit_banged_scl_sda setting up the MPU 6050 for communication.
     mpu6050(hwlib::i2c_bus_bit_banged_scl_sda bus):bus(bus){}
+    
+    /// \brief
+    /// Enable MPU 6050
+    /// \details
+    /// This function enables the MPU 6050 by writing a high value to the power management register.
     void start();
+    
+    /// \brief
+    /// Calibrate MPU 6050 Accelerator
+    /// \details
+    /// This function will start calibrating the MPU 6050 to get its current accelerometer state and set it to 0 as a starting point on all axis.
+    /// While the device is running this calibration, do not move the MPU 6050.
+    /// It will do 50 measurements in 5 seconds.
+    /// The result of this function will be an offset that is used in the get() functions.
     void calibrate_accel();
+    
+    /// \brief
+    /// Display loading segment on i2c display
+    /// \details
+    /// This is a loading segment that is used in calibrate_accel_loading(). 
+    /// x and y for its position (starting from the left upper corner), and screen for the i2c display you want to display the segment on.
     void load_segment(int x, int y, hwlib::glcd_oled & screen);
+    
+    /// \brief
+    /// Calibrate MPU 6050 with visuals
+    /// \details
+    /// This function has the exact same functionality as calibrate_accel(), but it comes with a visual representation of a loading bar.
+    /// The loading bar consists of 50 segments, every measurement a segment will be added to the loading bar and when the calibration is complete the loading bar will be full.
     void calibrate_accel_loading(hwlib::glcd_oled & screen);
+    
+    /// \brief
+    /// Calibrate MPU 6050 Gyroscope
+    /// \details
+    /// This function will start calibrating the MPU 6050 gyroscope to get its current state and set it to 0 as a starting point on all axis.
+    /// While the device is running this calibration, do not move the MPU 6050.
+    /// It will do 50 measurements in 5 seconds.
+    /// The result of this function will be an offset that is used in the get() functions.
     void calibrate_gyro();
+    
+    /// \brief
+    /// Read 8 bit from register
+    /// \details
+    /// This function will return an 8 bit value read from the given register.
     int8_t read_8_bit(const reg & r);
+    
+    /// \brief
+    /// Read two 8 bit from register
+    /// \details
+    /// This function will return an 16 bit register from two given adresses, using read_8_bit() and converting the two 8 bit values into a 16 bit value.
     int16_t read_16_bit(const reg & h, const reg & l);
+    
+    /// \brief 
+    /// Get accelerator x value
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 accelerator x-axis.
     int16_t get_accel_x();
+    
+    /// \brief 
+    /// Get accelerator y value
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 accelerator y-axis.
     int16_t get_accel_y();
+    
+    /// \brief 
+    /// Get accelerator x value (only positive)
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 accelerator x-axis converting it so that it is alway a positive number.
     int16_t get_accel_x_positive();
+    
+    /// \brief 
+    /// Get accelerator y value (only positive)
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 accelerator y-axis converting it so that it is alway a positive number.
     int16_t get_accel_y_positive();
+    
+    /// \brief 
+    /// Get accelerator z value
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 accelerator z-axis.
     int16_t get_accel_z();
+    
+    /// \brief 
+    /// Get gyroscope x value
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 gyroscope x-axis.
     int16_t get_gyro_x();
+    
+    /// \brief 
+    /// Get gyroscope y value
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 gyroscope y-axis.
     int16_t get_gyro_y();
+    
+    /// \brief 
+    /// Get gyroscope z value
+    /// \details
+    /// This function returns the raw unprocessed value from the MPU 6050 gyroscope z-axis.
     int16_t get_gyro_z();
+    
+    /// \brief
+    /// Get accelarator x state
+    /// \details
+    /// This function returns a value -1, 0 or 1. 
+    /// These values represent if the x-axis is not tilted, tilted one way or the other way.
     int get_accel_x_state(int sensitivity);
+    
+    /// \brief
+    /// Get accelerator y state
+    /// \details
+    /// This function returns a value -1, 0 or 1. 
+    /// These values represent if the x-axis is not tilted, tilted one way or the other way.
     int get_accel_y_state(int sensitivity);
 };
 
