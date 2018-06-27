@@ -1,6 +1,6 @@
 #include "hwlib.hpp"
 #include "mpu6050.hpp"
-#include "mpu6050_test.hpp"
+#include "testmpu6050.hpp"
 
 const int screen_width = 128;
 const int screen_height = 64;
@@ -14,6 +14,7 @@ int point_location_y = screen_height / 2;
 enum eDirection {STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir;
 
+//Create a random number with jumps of 3, above zero, below max.
 int dot_rand(int max)
 {
     int r = rand() % max;
@@ -32,6 +33,7 @@ int dot_rand(int max)
     }
 }
 
+//Create a random number with jumps of 3, above zero, below max. (More efficient than dot_rand())
 int dot_rand_v2(int max)
 {
     int r = (unsigned)3 * rand() % max;
@@ -44,6 +46,7 @@ int dot_rand_v2(int max)
     }
 }
 
+// Increase or decrease the x position depending on the state of x_state the sensor.
 void move_location_x(int x_state, int x_location)
 {
     if(x_state == 1 && x_location < (128-1))
@@ -56,6 +59,7 @@ void move_location_x(int x_state, int x_location)
     }
 }
 
+// Increase or decrease the y position depending on the state of y_state the sensor.
 void move_location_y(int y_state, int y_location)
 {
     if(y_state == 1 && y_location > 0)
@@ -76,6 +80,7 @@ void update_screen(hwlib::location c_location, auto & screen)
     c.draw(screen);
 }
 
+// Some functions for writing to the display tend to write to the left top corner of the screen, this function will hide this bug in my demo.
 void fix_corner(auto & screen)
 {
     screen.write(hwlib::location(0, 0), hwlib::black);
@@ -83,6 +88,7 @@ void fix_corner(auto & screen)
     screen.write(hwlib::location(0, 1), hwlib::black);
 }
 
+// This function will draw a cube consisting of 4 pixels starting from the top left corner. These segments are used as snake tail parts and fruits in my retro snake demo.
 void draw_segment(int x_value, int y_value, auto & screen)
 {
     screen.write(hwlib::location(x_value, y_value), hwlib::black);
@@ -91,6 +97,7 @@ void draw_segment(int x_value, int y_value, auto & screen)
     screen.write(hwlib::location(x_value, y_value + 1), hwlib::black);
 }
 
+// This function will remove a cube consisting of 4 pixels starting from the top left corner and can be used to remove an executed draw_segment(). 
 void remove_segment(int x_value, int y_value, auto & screen)
 {
     screen.write(hwlib::location(x_value, y_value), hwlib::white);
@@ -100,6 +107,7 @@ void remove_segment(int x_value, int y_value, auto & screen)
     fix_corner(screen);
 }
 
+// This will draw borders of 1 pixel wide across the outline of the display.
 void border_draw(int s_width, int s_height, auto & screen)
 {
     for(int i = 0; i < s_width; i++)
@@ -114,6 +122,7 @@ void border_draw(int s_width, int s_height, auto & screen)
     }
 }
 
+// This function will draw the snake. The snake is one segment followed by its tail starting at 1.
 void snake_draw(int x, int y, auto & screen)
 {
     for(int i = 0; i < 64; i++)
@@ -138,6 +147,7 @@ void snake_draw(int x, int y, auto & screen)
     }
 }
 
+// This function will remove the "last" segment. This function is like a vacuum going after the snake its tail, making sure it is the length it should be, and not growing every step it makes.
 void snake_remove(int s_x, int s_y, auto & screen)
 {
     for(int i = 0; i < 64; i++)
@@ -152,6 +162,7 @@ void snake_remove(int s_x, int s_y, auto & screen)
     }
 }
 
+// Keep drawing a segment where the dot position is given the game. If you don't keep rewriting this there is a chance it spawns inside the snake and it get vacuumed. Very hard to find afterwards. 
 void dot_draw(auto & screen)
 {
     for(int i = 0; i < 64; i++)
@@ -166,6 +177,7 @@ void dot_draw(auto & screen)
     }
 }
 
+// This function makes sure the snake movement is nice and clean and it cant go backwards into itself.
 void snake_move(int x_state, int y_state, int x_value, int y_value)
 {
     if(x_state == -1 && dir != RIGHT && x_value > y_value)
@@ -183,6 +195,7 @@ void snake_move(int x_state, int y_state, int x_value, int y_value)
     }
 }
 
+// This function is the setup for the snake game, putting everything on starting values.
 void snake_setup(auto & screen)
 {
     screen.clear();
@@ -198,6 +211,7 @@ void snake_setup(auto & screen)
     dot_draw(screen);
 }
 
+// this function contains the logic behind the snake game, the collisions, the snake tail expanding etc.
 void snake_logic(auto & screen)
 {
     int prev_x = tail_x[0];
@@ -276,6 +290,7 @@ void snake_logic(auto & screen)
     }
 }
 
+// This function I made when starting this project to see if I could draw on the display using the mpu6050. You can move the "pen" across the screen leaving a beautifull drawing.
 void draw_something(int x_state, int y_state, auto & screen, int speed)
 {
     int delay = 100 * speed;
@@ -291,32 +306,35 @@ int main(void)
     WDT->WDT_MR = WDT_MR_WDDIS;
     
     namespace target = hwlib::target;
-    
     hwlib::wait_ms(500);
     
-//    srand (time(NULL));
-    
+    //Create mpu6050 object 
     auto scl_mpu6050 = target::pin_oc{target::pins::scl};
     auto sda_mpu6050 = target::pin_oc{target::pins::sda};
     auto i2c_bus_mpu6050 = hwlib::i2c_bus_bit_banged_scl_sda{scl_mpu6050, sda_mpu6050};
     auto mpu_6050 = mpu6050(i2c_bus_mpu6050);
     
+    //Create display objcet
     auto scl_oled = target::pin_oc{target::pins::scl1};
     auto sda_oled = target::pin_oc{target::pins::sda1};
     auto i2c_bus_oled = hwlib::i2c_bus_bit_banged_scl_sda{scl_oled, sda_oled};
     auto oled = hwlib::glcd_oled{i2c_bus_oled, 0x3c};
     
+    //Create font
     auto font = hwlib::font_default_8x8();
     auto display = hwlib::window_ostream(oled, font);
     
-    auto test_mpu6050 = mpu6050_test(i2c_bus_mpu6050);
+    // Create test object for mpu6050
+    auto mpu_6050_test = testmpu6050(mpu_6050);
     
     oled.clear();
     
-    mpu_6050.start();
+    display << "\f" << "\n\nRunning tests.."
+            <<  "\n\n\n Do NOT move!" << hwlib::flush;
     
-    test_mpu6050.print_self_test();
-
+    mpu_6050.start();
+    mpu_6050_test.print_test_all();
+    
     hwlib::cout << "Starting accelerator calibration, do not move the device!\n";
     
     display << "\f" << "\n\n  Calibrating.." 
@@ -326,18 +344,9 @@ int main(void)
     hwlib::cout << "Accelerator calibration complete!\n";
     snake_setup(oled);
     
-    int who = mpu_6050.whoami();
-    hwlib::cout << "I am: " << who << "\n";
     for(;;)
     {
-        int test1 = mpu_6050.get_accel_x();
-        int test2 = mpu_6050.get_accel_y();
-        int test3 = mpu_6050.get_accel_z();
-        int test4 = mpu_6050.get_gyro_x();
-        int test5 = mpu_6050.get_gyro_y();
-        int test6 = mpu_6050.get_gyro_z();
         int x_axis_state = mpu_6050.get_accel_x_state(2);
-        hwlib::cout << test1 << test2 << test3 << test4 << test5 << test6 << "\n";
         int y_axis_state = mpu_6050.get_accel_y_state(2);
         int x_accel_value = mpu_6050.get_accel_x_positive();
         int y_accel_value = mpu_6050.get_accel_y_positive();
