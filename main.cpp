@@ -1,5 +1,6 @@
 #include "hwlib.hpp"
 #include "mpu6050.hpp"
+#include "mpu6050_test.hpp"
 
 const int screen_width = 128;
 const int screen_height = 64;
@@ -268,7 +269,7 @@ void snake_logic(auto & screen)
         score += 10;
         remove_segment(dot_x, dot_y, screen);
         dot_x = dot_rand_v2(screen_width);
-        dot_y = dot_rand_v2(screen_height);
+        dot_y = dot_rand_v2(screen_height - 2);
         tail_length++;
         dot_draw(screen);
         hwlib::cout << "score: " << score << "\n";
@@ -293,26 +294,50 @@ int main(void)
     
     hwlib::wait_ms(500);
     
+//    srand (time(NULL));
+    
     auto scl_mpu6050 = target::pin_oc{target::pins::scl};
     auto sda_mpu6050 = target::pin_oc{target::pins::sda};
     auto i2c_bus_mpu6050 = hwlib::i2c_bus_bit_banged_scl_sda{scl_mpu6050, sda_mpu6050};
-    auto mpu_6050 = mpu6050(i2c_bus_mpu6050);    
+    auto mpu_6050 = mpu6050(i2c_bus_mpu6050);
     
     auto scl_oled = target::pin_oc{target::pins::scl1};
     auto sda_oled = target::pin_oc{target::pins::sda1};
     auto i2c_bus_oled = hwlib::i2c_bus_bit_banged_scl_sda{scl_oled, sda_oled};
     auto oled = hwlib::glcd_oled{i2c_bus_oled, 0x3c};
     
+    auto font = hwlib::font_default_8x8();
+    auto display = hwlib::window_ostream(oled, font);
+    
+    auto test_mpu6050 = mpu6050_test(i2c_bus_mpu6050);
+    
     oled.clear();
     
     mpu_6050.start();
+    
+    test_mpu6050.print_self_test();
+
     hwlib::cout << "Starting accelerator calibration, do not move the device!\n";
+    
+    display << "\f" << "\n\n  Calibrating.." 
+            <<  "\n\n\n  Do NOT move!" << hwlib::flush;
+
     mpu_6050.calibrate_accel_loading(oled);
     hwlib::cout << "Accelerator calibration complete!\n";
     snake_setup(oled);
+    
+    int who = mpu_6050.whoami();
+    hwlib::cout << "I am: " << who << "\n";
     for(;;)
     {
+        int test1 = mpu_6050.get_accel_x();
+        int test2 = mpu_6050.get_accel_y();
+        int test3 = mpu_6050.get_accel_z();
+        int test4 = mpu_6050.get_gyro_x();
+        int test5 = mpu_6050.get_gyro_y();
+        int test6 = mpu_6050.get_gyro_z();
         int x_axis_state = mpu_6050.get_accel_x_state(2);
+        hwlib::cout << test1 << test2 << test3 << test4 << test5 << test6 << "\n";
         int y_axis_state = mpu_6050.get_accel_y_state(2);
         int x_accel_value = mpu_6050.get_accel_x_positive();
         int y_accel_value = mpu_6050.get_accel_y_positive();

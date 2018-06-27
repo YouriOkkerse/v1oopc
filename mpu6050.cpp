@@ -15,6 +15,15 @@ int8_t mpu6050::read_8_bit(const reg & r)
     return bit_8_value;
 }
 
+int8_t mpu6050::whoami()
+{
+    uint8_t data[1] = {0x75};
+    bus.write(i2c_adress, data, 1);
+    bus.read(i2c_adress, data, 1);
+    int8_t bit_8_value = data[0];
+    return bit_8_value;
+}
+
 int16_t mpu6050::read_16_bit(const reg & h, const reg & l)
 {
     uint8_t adress_high_value = read_8_bit(h);
@@ -81,41 +90,6 @@ int16_t mpu6050::get_gyro_z()
     return z_axis - gyro_offset_z;
 }
 
-//int16_t mpu6050::get_x()
-//{
-//    byte data_high[8] = {MPU_6050_ACCEL_YOUT_H};
-//    byte data_low[8] = {MPU_6050_ACCEL_YOUT_L};
-//    bus.write(MPU_6050_ADDRESS_LOW, data_high, 1);
-//    bus.read(MPU_6050_ADDRESS_LOW, data_high, 1);
-//    bus.write(MPU_6050_ADDRESS_LOW, data_low, 1);
-//    bus.read(MPU_6050_ADDRESS_LOW, data_low, 1);
-//    int16_t x_axis = (data_high[0] << 8) + data_low[0];
-//    return x_axis - offset_x;
-//}
-
-//int16_t mpu6050::get_y()
-//{
-//    byte data_high[8] = {MPU_6050_ACCEL_XOUT_H};
-//    byte data_low[8] = {MPU_6050_ACCEL_XOUT_L};
-//    bus.write(MPU_6050_ADDRESS_LOW, data_high, 1);
-//    bus.read(MPU_6050_ADDRESS_LOW, data_high, 1);
-//    bus.write(MPU_6050_ADDRESS_LOW, data_low, 1);
-//    bus.read(MPU_6050_ADDRESS_LOW, data_low, 1);
-//    int16_t y_axis = 0;
-//    y_axis = (data_high[0] << 8) + data_low[0];
-//    return y_axis - offset_y;
-//}
-
-//int16_t mpu6050::get_z()
-//{
-//    byte data[8] = {0x3F};
-//    bus.write(i2c_adress, data, 1);
-//    bus.read(i2c_adress, data, 2);
-//    int16_t z_axis = 0;
-//    z_axis = (data[0] << 8) + data[1];
-//    return z_axis;
-//}
-
 void mpu6050::calibrate_accel()
 {
     int count = 0;
@@ -161,8 +135,19 @@ void mpu6050::calibrate_accel_loading(hwlib::glcd_oled & screen)
     int32_t temp_accel_x = 0;
     int32_t temp_accel_y = 0;
     int32_t temp_accel_z = 0;
-    load_segment(11, 28, screen);
-    load_segment(113, 28, screen);
+    
+    for(int i = 12; i < 114; i++)
+    {
+        screen.write(hwlib::location(i, 26), hwlib::black);
+        screen.write(hwlib::location(i, 37), hwlib::black);
+    }
+    
+    for(int i = 26; i < 38; i++)
+    {
+        screen.write(hwlib::location(11, i), hwlib::black);
+        screen.write(hwlib::location(114, i), hwlib::black);
+    }
+    
     for(int i = 0; i < 50; i++)
     {
         count++;

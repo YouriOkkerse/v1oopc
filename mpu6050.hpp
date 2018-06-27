@@ -20,20 +20,7 @@ private:
     int16_t accel_offset_x = 0, accel_offset_y = 0, accel_offset_z = 0,
             gyro_offset_x = 0, gyro_offset_y = 0, gyro_offset_z = 0;
     
-//    //Gyro scale
-//    gyro_fs_250  = 0,
-//    gyro_fs_500  = 1,
-//    gyro_fs_1000 = 2,
-//    gyro_fs_2000 = 3,
-//    
-//    //Accelerometer scale
-//    accel_fs_2   = 0,
-//    accel_fs_4   = 1,
-//    accel_fs_8   = 2,
-//    accel_fs_16  = 3,
-    
-    //MPU6050 Registers
-    //MPU addresses
+    //MPU i2c adress
     const uint8_t i2c_adress  = 0x68;
     
 public:
@@ -180,6 +167,12 @@ public:
     /// \details
     /// This function enables the MPU 6050 by writing a high value to the power management register.
     void start();
+    
+    /// \brief
+    ///
+    /// \details
+    ///
+    int8_t whoami();
     
     /// \brief
     /// Calibrate MPU 6050 Accelerator
