@@ -169,9 +169,10 @@ public:
     void start();
     
     /// \brief
-    ///
+    /// Veryfy the identity of the device
     /// \details
-    ///
+    /// The contents of whoami() are the upper 6 bits of the MPU-6050’s 7-bit I2C address.
+    /// The result should be 0x64 also 104.
     int8_t whoami();
     
     /// \brief
@@ -221,49 +222,59 @@ public:
     /// \brief 
     /// Get accelerator x value
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 accelerator x-axis.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored X axis accelerometer measurement.
     int16_t get_accel_x();
     
     /// \brief 
     /// Get accelerator y value
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 accelerator y-axis.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored Y axis accelerometer measurement.
     int16_t get_accel_y();
     
     /// \brief 
     /// Get accelerator x value (only positive)
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 accelerator x-axis converting it so that it is alway a positive number.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored X axis accelerometer measurement.
+    /// Convert value to always return the value positive.
     int16_t get_accel_x_positive();
     
     /// \brief 
     /// Get accelerator y value (only positive)
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 accelerator y-axis converting it so that it is alway a positive number.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored Y axis accelerometer measurement.
+    /// Convert value to always return the value positive.
     int16_t get_accel_y_positive();
     
     /// \brief 
     /// Get accelerator z value
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 accelerator z-axis.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored Z axis accelerometer measurement.
     int16_t get_accel_z();
     
     /// \brief 
     /// Get gyroscope x value
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 gyroscope x-axis.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored X axis gyroscope measurement.
     int16_t get_gyro_x();
     
     /// \brief 
     /// Get gyroscope y value
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 gyroscope y-axis.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored Y axis gyroscope measurement.
     int16_t get_gyro_y();
     
     /// \brief 
     /// Get gyroscope z value
     /// \details
-    /// This function returns the raw unprocessed value from the MPU 6050 gyroscope z-axis.
+    /// 16-bit 2's complement value.
+    /// Returns the most recent stored Z axis gyroscope measurement.
     int16_t get_gyro_z();
     
     /// \brief
